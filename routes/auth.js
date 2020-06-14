@@ -7,13 +7,17 @@ var jwt = require('jsonwebtoken');
 var router = express.Router();
 var User = require("../models/user");
 
+
 router.post('/signup', function(req, res) {
   if (!req.body.username || !req.body.password) {
     res.json({success: false, msg: 'Please pass username and password.'});
   } else {
     var newUser = new User({
       username: req.body.username,
-      password: req.body.password
+      password: req.body.password,
+      role: 'STUDENT',
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
     });
     // save the user
     newUser.save(function(err) {
@@ -56,40 +60,6 @@ router.get('/signout', passport.authenticate('jwt', { session: false}), function
   res.json({success: true, msg: 'Sign out successfully.'});
 });
 
-router.post('/book', passport.authenticate('jwt', { session: false}), function(req, res) {
-  var token = getToken(req.headers);
-  if (token) {
-    console.log(req.body);
-    var newBook = new Book({
-      isbn: req.body.isbn,
-      title: req.body.title,
-      author: req.body.author,
-      publisher: req.body.publisher
-    });
-
-    newBook.save(function(err) {
-      if (err) {
-        return res.json({success: false, msg: 'Save book failed.'});
-      }
-      res.json({success: true, msg: 'Successful created new book.'});
-    });
-  } else {
-    return res.status(403).send({success: false, msg: 'Unauthorized.'});
-  }
-});
-
-router.get('/book', passport.authenticate('jwt', { session: false}), function(req, res) {
-  var token = getToken(req.headers);
-  if (token) {
-    Book.find(function (err, books) {
-      if (err) return next(err);
-      res.json(books);
-    });
-  } else {
-    return res.status(403).send({success: false, msg: 'Unauthorized.'});
-  }
-});
-
 getToken = function (headers) {
   if (headers && headers.authorization) {
     var parted = headers.authorization.split(' ');
@@ -101,6 +71,5 @@ getToken = function (headers) {
   } else {
     return null;
   }
-};
-
+}
 module.exports = router;

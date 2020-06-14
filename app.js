@@ -12,10 +12,11 @@ var config = require('./config/database');
 
 mongoose.connect(config.database, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
 
-var api = require('./routes/auth');
+var auth = require('./routes/auth');
+var api = require('./routes/index');
 
 var app = express();
-
+module.exports = app;
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -36,6 +37,8 @@ app.get('/', function(req, res) {
   res.send('Page under construction.');
 });
 
+
+app.use('/auth', auth);
 app.use('/api', api);
 
 // catch 404 and forward to error handler

@@ -6,90 +6,82 @@ var express = require('express');
 var jwt = require('jsonwebtoken');
 var router = express.Router();
 var User = require("../models/user");
+var Model = require("../models/exam");
 
-router.post('/signup', function(req, res) {
-  if (!req.body.username || !req.body.password) {
-    res.json({success: false, msg: 'Please pass username and password.'});
-  } else {
-    var newUser = new User({
-      username: req.body.username,
-      password: req.body.password
+router.get('/', passport.authenticate('jwt', { session: false}), function(req, res) {
+  var token = getToken(req.headers);
+  if (token) {
+    Model.find(function (err, result) {
+      if (err) return next(err);
+      res.json(result);
     });
-    // save the user
-    newUser.save(function(err) {
+  } else {
+    return res.status(403).send({success: false, msg: 'Unauthorized.'});
+  }
+});
+
+
+router.post('/', passport.authenticate('jwt', { session: false}), function(req, res) {
+  var token = getToken(req.headers);
+  if (token) {
+    var newModel = new Model({
+      date: req.body.date,
+      status: 'NEW',
+      score: null,
+      student: req.body.student,
+      supervisor: req.body.supervisor,
+      examRoom: req.body.examRoom,
+    });
+    newModel.save(function(err, result) {
+      if (err) {
+        return res.json({success: false, msg: 'cant create certification'});
+      }
+      return res.json(result);
+    });
+  } else {
+    return res.status(403).send({success: false, msg: 'Unauthorized.'});
+  }
+});
+
+router.put('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
+  var token = getToken(req.headers);
+  if (token) {
+    Model.findByIdAndUpdate(req.param.id, req.body, function (err, result) {
       if (err) {
         return res.json({success: false, msg: 'Username already exists.'});
       }
-      res.json({success: true, msg: 'Successful created new user.'});
+      return res.json(result);
     });
+  } else {
+    return res.status(403).send({success: false, msg: 'Unauthorized.'});
   }
 });
 
-router.post('/signin', function(req, res) {
-  User.findOne({
-    username: req.body.username
-  }, function(err, user) {
-    if (err) throw err;
-
-    if (!user) {
-      res.status(401).send({success: false, msg: 'Authentication failed. User not found.'});
-    } else {
-      // check if password matches
-      user.comparePassword(req.body.password, function (err, isMatch) {
-        if (isMatch && !err) {
-          // if user is found and password is right create a token
-          var token = jwt.sign(user.toJSON(), config.secret, {
-            expiresIn: 604800 // 1 week
-          });
-          // return the information including token as JSON
-          res.json({success: true, token: 'JWT ' + token});
-        } else {
-          res.status(401).send({success: false, msg: 'Authentication failed. Wrong password.'});
-        }
-      });
-    }
-  });
-});
-
-router.get('/signout', passport.authenticate('jwt', { session: false}), function(req, res) {
-  req.logout();
-  res.json({success: true, msg: 'Sign out successfully.'});
-});
-
-router.post('/book', passport.authenticate('jwt', { session: false}), function(req, res) {
+router.get('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    console.log(req.body);
-    var newBook = new Book({
-      isbn: req.body.isbn,
-      title: req.body.title,
-      author: req.body.author,
-      publisher: req.body.publisher
-    });
-
-    newBook.save(function(err) {
+    Model.findById(req.param.id, function (err, result) {
       if (err) {
-        return res.json({success: false, msg: 'Save book failed.'});
+        return res.json({success: false, msg: 'Username already exists.'});
       }
-      res.json({success: true, msg: 'Successful created new book.'});
+      return res.json(result);
     });
   } else {
     return res.status(403).send({success: false, msg: 'Unauthorized.'});
   }
 });
 
-router.get('/book', passport.authenticate('jwt', { session: false}), function(req, res) {
+
+router.delete('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    Book.find(function (err, books) {
-      if (err) return next(err);
-      res.json(books);
+    Model.findById(req.param.id).remove(function (err, result) {
+      return res.status(201).send();
     });
   } else {
     return res.status(403).send({success: false, msg: 'Unauthorized.'});
   }
 });
-
 getToken = function (headers) {
   if (headers && headers.authorization) {
     var parted = headers.authorization.split(' ');
@@ -101,6 +93,5 @@ getToken = function (headers) {
   } else {
     return null;
   }
-};
-
+}
 module.exports = router;

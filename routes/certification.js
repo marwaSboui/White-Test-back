@@ -2,12 +2,12 @@ var passport = require('passport');
 require('../config/passport')(passport);
 var express = require('express');
 var router = express.Router();
-var Model = require("../models/exam-room");
+var Certification = require('../models/certification');
 
 router.get('/', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    Model.find(function (err, result) {
+    Certification.find(function (err, result) {
       if (err) return next(err);
       res.json(result);
     });
@@ -20,11 +20,12 @@ router.get('/', passport.authenticate('jwt', { session: false}), function(req, r
 router.post('/', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    var newModel = new Model({
-      number: req.body.number,
-      availability: req.body.availability,
+    var newCertification = new Certification({
+      name: req.body.name,
+      duration: req.body.duration,
+      provider: req.body.provider,
     });
-    newModel.save(function(err, result) {
+    newCertification.save(function(err, result) {
       if (err) {
         return res.json({success: false, msg: 'cant create certification'});
       }
@@ -38,7 +39,7 @@ router.post('/', passport.authenticate('jwt', { session: false}), function(req, 
 router.put('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    Model.findByIdAndUpdate(req.param.id, req.body, function (err, result) {
+    Certification.findByIdAndUpdate(req.param.id, req.body, function (err, result) {
       if (err) {
         return res.json({success: false, msg: 'Username already exists.'});
       }
@@ -52,7 +53,7 @@ router.put('/:id', passport.authenticate('jwt', { session: false}), function(req
 router.get('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    Model.findById(req.param.id, function (err, result) {
+    Certification.findById(req.param.id, function (err, result) {
       if (err) {
         return res.json({success: false, msg: 'Username already exists.'});
       }
@@ -67,7 +68,7 @@ router.get('/:id', passport.authenticate('jwt', { session: false}), function(req
 router.delete('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    Model.findById(req.param.id).remove(function (err, result) {
+    Certification.findById(req.param.id).remove(function (err, result) {
       return res.status(201).send();
     });
   } else {

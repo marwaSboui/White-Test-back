@@ -14,7 +14,7 @@ var UserSchema = new Schema({
     },
     role: {type: String, require: true, enum: ['STUDENT', 'SUPERVISOR', 'ADMIN']},
     firstName: {type: String, require: true},
-    lsatName: {type: String, require: true},
+    lastName: {type: String, require: true},
     availability: [{
         type: Schema.Types.ObjectId, ref: 'Availability'
     }]
@@ -48,5 +48,18 @@ UserSchema.methods.comparePassword = function (passw, cb) {
         cb(null, isMatch);
     });
 };
+
+getToken = function (headers) {
+    if (headers && headers.authorization) {
+        var parted = headers.authorization.split(' ');
+        if (parted.length === 2) {
+            return parted[1];
+        } else {
+            return null;
+        }
+    } else {
+        return null;
+    }
+}
 
 module.exports = mongoose.model('User', UserSchema);

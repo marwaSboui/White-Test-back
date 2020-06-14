@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var ExamRoomSchema = new Schema({
-  number: {type: Number, require: true},
+  number: {type: String, require: true},
   availability: [{
     type: Schema.Types.ObjectId, ref: 'Availability'
   }]
