@@ -39,7 +39,7 @@ router.post('/', passport.authenticate('jwt', { session: false}), function(req, 
 router.put('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    Certification.findByIdAndUpdate(req.param.id, req.body, function (err, result) {
+    Certification.findByIdAndUpdate(req.params.id, req.body, function (err, result) {
       if (err) {
         return res.json({success: false, msg: 'Username already exists.'});
       }
@@ -53,7 +53,7 @@ router.put('/:id', passport.authenticate('jwt', { session: false}), function(req
 router.get('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    Certification.findById(req.param.id, function (err, result) {
+    Certification.findById(req.params.id, function (err, result) {
       if (err) {
         return res.json({success: false, msg: 'Username already exists.'});
       }
@@ -67,8 +67,9 @@ router.get('/:id', passport.authenticate('jwt', { session: false}), function(req
 
 router.delete('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
+  console.log(token);
   if (token) {
-    Certification.findById(req.param.id).remove(function (err, result) {
+    Certification.deleteOne(req.param.id, function (err, result) {
       return res.status(201).send();
     });
   } else {
