@@ -4,7 +4,14 @@ var Schema = mongoose.Schema;
 var ExamRoomSchema = new Schema({
   number: {type: String, require: true},
   availability: [{
-    type: Schema.Types.ObjectId, ref: 'Availability'
+    from: {
+      type: Date,
+      require: true
+    },
+    to: {
+      type: Date,
+      require: true
+    }
   }]
 });
 

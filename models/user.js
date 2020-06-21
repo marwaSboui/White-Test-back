@@ -16,7 +16,14 @@ var UserSchema = new Schema({
     firstName: {type: String, require: true},
     lastName: {type: String, require: true},
     availability: [{
-        type: Schema.Types.ObjectId, ref: 'Availability'
+        from: {
+            type: Date,
+            require: true
+        },
+        to: {
+            type: Date,
+            require: true
+        }
     }]
 });
 

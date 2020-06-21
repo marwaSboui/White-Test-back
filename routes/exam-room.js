@@ -19,6 +19,7 @@ router.get('/', passport.authenticate('jwt', { session: false}), function(req, r
 
 router.post('/', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
+  console.log(req.body);
   if (token) {
     var newModel = new Model({
       number: req.body.number,
@@ -26,6 +27,7 @@ router.post('/', passport.authenticate('jwt', { session: false}), function(req, 
     });
     newModel.save(function(err, result) {
       if (err) {
+        console.log(err);
         return res.json({success: false, msg: 'cant create certification'});
       }
       return res.json(result);
@@ -67,7 +69,7 @@ router.get('/:id', passport.authenticate('jwt', { session: false}), function(req
 router.delete('/:id', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    Model.findById(req.param.id).remove(function (err, result) {
+    Model.findById(req.params.id).remove(function (err, result) {
       return res.status(201).send();
     });
   } else {

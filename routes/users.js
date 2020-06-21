@@ -8,22 +8,13 @@ var router = express.Router();
 var User = require('../models/user');
 
 
-router.get('/create-supervisor', passport.authenticate('jwt', { session: false}), function(req, res) {
+router.get('/supervisor', passport.authenticate('jwt', { session: false}), function(req, res) {
   var token = getToken(req.headers);
   if (token) {
-    var newSupervisor = new User({
-      username: req.body.username,
-      password: req.body.password,
-      role: 'SUPERVISOR',
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-    });
-    newSupervisor.save(function(err) {
-      if (err) {
-        return res.json({success: false, msg: 'Username already exists.'});
-      }
-      res.json({success: true, msg: 'Successful created new user.'});
-    });
+    User.find({role: 'SUPERVISOR'}).exec(function (err, result) {
+      if (err) return next(err);
+      res.json(result);
+    })
   } else {
     return res.status(403).send({success: false, msg: 'Unauthorized.'});
   }
